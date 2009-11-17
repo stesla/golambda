@@ -1,17 +1,9 @@
-PROGRAM=golambda
-O=6 # x86_64
-LD=6l
-GC=6g
+# Copyright 2009 The Go Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
 
-all: $(PROGRAM)
+TARG=golambda
+GOFILES=\
+	expr.go
 
-clean:
-	rm -rf *.$O $(PROGRAM)
-
-$(PROGRAM): $(OBJS) main.$O
-	${LD} -o $@ main.$O $(OBJS)
-
-.SUFFIXES: .go .6
-
-.go.6:
-	${GC} $<
+include $(GOROOT)/src/Make.pkg
