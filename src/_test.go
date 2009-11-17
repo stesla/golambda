@@ -15,6 +15,12 @@ func test(t *testing.T, tests []testCase) {
 	}
 }
 
+func expectMatchString(t *testing.T, expected, actual, message string) {
+	if pass, _ := testing.MatchString(expected, actual); !pass {
+		t.Errorf("%v: expected `%v` to be `%v`", message, actual, expected);
+	}
+}
+
 type fmtTest struct {
 	message string;
 	expected string;
@@ -22,7 +28,20 @@ type fmtTest struct {
 }
 
 func (test fmtTest) run(t *testing.T) {
-	if pass,_ := testing.MatchString(test.expected, test.actual.String()); !pass {
-		t.Errorf("%v: expected `%v` to be `%v`", test.message, test.actual, test.expected);
+	expectMatchString(t, test.expected, test.actual.String(), test.message);
+}
+
+type parseTest struct {
+	message string;
+	input string;
+	output string;
+}
+
+func (test parseTest) run(t *testing.T) {
+	ast, ok := Parse(test.input);
+	if ok {
+		expectMatchString(t, test.output, ast.String(), test.message);
+	} else {
+		t.Errorf("%v: `%v` does not parse", test.message, test.input);
 	}
 }

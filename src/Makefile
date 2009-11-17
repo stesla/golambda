@@ -4,6 +4,7 @@
 
 TARG=golambda
 GOFILES=\
-	expr.go
+	expr.go\
+	parse.go
 
 include $(GOROOT)/src/Make.pkg
