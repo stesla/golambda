@@ -5,25 +5,25 @@ import (
 )
 
 func TestVariable(t *testing.T) {
-	expectExpression(t,
+	expectFmt(t,
 		"x",
 		Variable{"x"});
 }
 
 func TestGroup(t *testing.T) {
-	expectExpression(t,
+	expectFmt(t,
 		"(x)",
 		Group{ Variable{"x"} });
 }
 
 func TestApplication(t *testing.T) {
-	expectExpression(t,
+	expectFmt(t,
 		"f x",
 		Application{ Variable{"f"}, Variable{"x"} });
 }
 
 func TestAbstraction(t *testing.T) {
-	expectExpression(t, 
+	expectFmt(t, 
 		"fn x. y",
 		Abstraction{ "x", Variable{"y"} });
 }
