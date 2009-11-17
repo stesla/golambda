@@ -1,32 +1,29 @@
 package golambda
 
 import (
-	"fmt";
 	"testing";
 )
 
-func expectExpression(t *testing.T, expected string, actual fmt.Stringer) {
-	if pass, err := testing.MatchString(expected, actual.String()); !pass {
-		t.Error(err);
-	}
-}
-
 func TestVariable(t *testing.T) {
-	varX := Variable{"x"};
-	expectExpression(t, "x", varX);
+	expectExpression(t,
+		"x",
+		Variable{"x"});
 }
 
 func TestGroup(t *testing.T) {
-	group := Group{ Variable{"x"} };
-	expectExpression(t, "(x)", group);
+	expectExpression(t,
+		"(x)",
+		Group{ Variable{"x"} });
 }
 
 func TestApplication(t *testing.T) {
-	application := Application{ Variable{"f"}, Variable{"x"} };
-	expectExpression(t, "f x", application);
+	expectExpression(t,
+		"f x",
+		Application{ Variable{"f"}, Variable{"x"} });
 }
 
 func TestAbstraction(t *testing.T) {
-	abstraction := Abstraction{ "x", Variable{"y"} };
-	expectExpression(t, "fn x. y", abstraction);
+	expectExpression(t, 
+		"fn x. y",
+		Abstraction{ "x", Variable{"y"} });
 }
