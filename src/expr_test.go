@@ -5,7 +5,7 @@ import (
 )
 
 func TestString(t *testing.T) {
-	testFmt(t, []fmtTest{
+	test(t, []testCase{
 		fmtTest{"variable", "x", Variable{"x"}},
 		fmtTest{"group", "(x)", Group{ Variable{"x"} }},
 		fmtTest{"application", "f x", Application{ Variable{"f"}, Variable{"x"} }},
