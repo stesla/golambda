@@ -17,20 +17,18 @@ var numErrors int;
 	ident string;
 }
 
-%type <expr> expr variable abstraction
+%type <expr> expr
 
 %token <ident> IDENT
 %token FN
 
 %%
 
-expr: variable
-    | abstraction
+expr: IDENT { $$ = Variable{$1}; }
+    | FN IDENT '.' expr { $$ = Abstraction{$2,$4}; }
+	| expr expr { $$ = Application{$1,$2}; }
+    | '(' expr ')' { $$ = $2; }
     ;
-
-abstraction: FN IDENT '.' expr { $$ = Abstraction{$2,$4}; }
-
-variable: IDENT { $$ = Variable{$1}; }
 
 %%
 
