@@ -3,6 +3,7 @@ package golambda
 
 import(
 	"fmt";
+	"container/list";
 	"utf8";
 )
 
@@ -15,9 +16,11 @@ var numErrors int;
 %union {
 	expr Expression;
 	ident string;
+	idents *list.List;
 }
 
 %type <expr> expr
+%type <idents> idents
 
 %token <ident> IDENT
 %token FN
@@ -25,12 +28,31 @@ var numErrors int;
 %%
 
 expr: IDENT { $$ = Variable{$1}; }
-    | FN IDENT '.' expr { $$ = Abstraction{$2,$4}; }
+    | FN idents '.' expr { $$ = makeAbstraction($2, $4); }
 	| expr expr { $$ = Application{$1,$2}; }
     | '(' expr ')' { $$ = $2; }
     ;
 
+idents: idents IDENT { $$ = makeIdents($1, $2); }
+      | IDENT { $$ = makeIdents(list.New(), $1); }
+      ;
+
 %%
+
+func makeAbstraction(idents *list.List, body Expression) Expression {
+	for idents.Len() > 0 {
+		elt := idents.Front();
+		idents.Remove(elt);
+		ident,_ := elt.Value.(string);
+		body = Abstraction{ident, body};
+	}
+	return body;
+}
+
+func makeIdents(idents *list.List, ident string) *list.List {
+	idents.PushFront(ident);
+	return idents;
+}
 
 func getrune() (result int) {
 	var n int;
