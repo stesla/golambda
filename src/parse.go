@@ -7,14 +7,36 @@ import(
 
 var numErrors int;
 
+func listPopFront(list *list.List) interface{} {
+	elt := list.Front();
+	list.Remove(elt);
+	return elt.Value;
+}
+
 func makeAbstraction(idents *list.List, body Expression) Expression {
 	for idents.Len() > 0 {
-		elt := idents.Front();
-		idents.Remove(elt);
-		ident,_ := elt.Value.(string);
+		ident,_ := listPopFront(idents).(string);
 		body = Abstraction{ident, body};
 	}
 	return body;
+}
+
+func makeAexprs(expr Expression, exprs *list.List) *list.List {
+	exprs.PushFront(expr);
+	return exprs;
+}
+
+func makeApplication(exprs *list.List) (result Expression) {
+	switch len := exprs.Len(); true {
+	case len >= 2:
+		x1,_ := listPopFront(exprs).(Expression);
+		x2,_ := listPopFront(exprs).(Expression);
+		exprs.PushFront(Application{x1,x2});
+		result = makeApplication(exprs);
+	case len == 1:
+		result,_ = listPopFront(exprs).(Expression);
+	}
+	return;
 }
 
 func makeIdents(idents *list.List, ident string) *list.List {

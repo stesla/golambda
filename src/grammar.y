@@ -10,22 +10,28 @@ import(
 %union {
 	expr Expression;
 	ident string;
-	idents *list.List;
+	list *list.List;
 }
 
-%type <expr> expr
-%type <idents> idents
+%type <expr> expr aexpr
+%type <list> idents aexprs
 
 %token <ident> IDENT
 %token FN
 
 %%
 
-expr: IDENT { $$ = Variable{$1}; }
-    | FN idents '.' expr { $$ = makeAbstraction($2, $4); }
-    | expr expr { $$ = Application{$1,$2}; }
-    | '(' expr ')' { $$ = Group{$2}; }
-    ;
+expr: aexprs { $$ = makeApplication($1); }
+| FN idents '.' expr { $$ = makeAbstraction($2, $4); }
+;
+
+aexpr: IDENT { $$ = Variable{$1}; }
+| '(' expr ')' { $$ = Group{$2}; }
+;
+
+aexprs: aexpr { $$ = makeAexprs($1, list.New()); }
+| aexpr aexprs { $$ = makeAexprs($1, $2); }
+;
 
 idents: idents IDENT { $$ = makeIdents($1, $2); }
       | IDENT { $$ = makeIdents(list.New(), $1); }

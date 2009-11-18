@@ -46,7 +46,8 @@ func (test substTest) run(t *testing.T) {
 			expectString(t, test.expected, actual.String(), test.message);
 		} else {
 			t.Errorf("%v: `%v` does not parse", test.message, test.subst);
-		} else {
+		}
+	} else {
 		t.Errorf("%v: `%v` does not parse", test.message, test.input);
 	}
 }
@@ -61,5 +62,35 @@ func TestSubstitute(t *testing.T) {
 		substTest{"bound var not free in substitution", "fn x. z", "fn x. y", "y", "z"},
 		substTest{"bound var free in substitution", "fn x0. x", "fn x. y", "y", "x"},
 		substTest{"group", "(y)", "(x)", "x", "y"}
+	});
+}
+
+type reduceTest struct {
+	message string;
+	expected string;
+	input string;
+}
+
+func (test reduceTest) run(t *testing.T) {
+	if ast, ok := ParseString(test.input); ok {
+		actual := ast.Reduce();
+		expectString(t, test.expected, actual.String(), test.message);
+	} else {
+		t.Errorf("%v: `%v` does not parse", test.message, test.input);
+	}
+}
+
+func TestReduce(t *testing.T) {
+	test(t, []testCase{
+		reduceTest{"variable", "x", "x"},
+		reduceTest{"abstraction", "fn x. x", "fn x. x"},
+		reduceTest{"application of non-abstraction", "x y", "x y"},
+		reduceTest{"application of abstraction", "y", "(fn x. x) y"},
+		reduceTest{"higher-order function", "fn x. x", "(fn z. z) (fn x. x)"},
+		reduceTest{"sequence", "y", "(fn z. z) (fn x. x) y"},
+		reduceTest{"nested", "a", "(fn x y. x y) (fn z. z) a"},
+		reduceTest{"several non-abstractions", "x y z", "x y z"},
+		reduceTest{"Church if true", "a", "(fn p. p) (fn x y. x) a b"},
+		reduceTest{"Church if false", "b", "(fn p. p) (fn x y. y) a b"}
 	});
 }

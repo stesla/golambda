@@ -9,6 +9,7 @@ var unique_id int;
 type Expression interface {
 	fmt.Stringer;
 	OccursFree(ident string) bool;
+	Reduce() Expression;
 	Substitute(ident string, subst Expression) Expression;
 }
 
@@ -42,6 +43,10 @@ func (a Abstraction) Substitute(ident string, subst Expression) (result Expressi
 	return;
 }
 
+func (a Abstraction) Reduce() Expression {
+	return a;
+}
+
 type Application struct {
 	function Expression;
 	argument Expression;
@@ -57,6 +62,21 @@ func (a Application) OccursFree(ident string) bool {
 
 func (a Application) Substitute(ident string, subst Expression) Expression {
 	return Application{a.function.Substitute(ident, subst), a.argument.Substitute(ident, subst)};
+}
+
+func (a Application) Reduce() Expression {
+	switch f := a.function.(type) {
+	case Group:
+		return Application{f.inner, a.argument}.Reduce();
+	case Abstraction:
+		expr := f.body.Substitute(f.variable, a.argument);
+		return expr.Reduce();
+	case Application:
+		if _,isVar := f.function.(Variable); !isVar {
+			return Application{f.Reduce(), a.argument}.Reduce();
+		}
+	}
+	return a;
 }
 
 type Group struct {
@@ -75,6 +95,10 @@ func (g Group) Substitute(ident string, subst Expression) Expression {
 	return Group{g.inner.Substitute(ident, subst)};
 }
 
+func (g Group) Reduce() Expression {
+	return g.inner.Reduce();
+}
+
 type Variable struct {
 	name string;
 }
@@ -91,5 +115,9 @@ func (v Variable) Substitute(ident string, subst Expression) Expression {
 	if v.name == ident {
 		return subst;
 	}
+	return v;
+}
+
+func (v Variable) Reduce() Expression {
 	return v;
 }
