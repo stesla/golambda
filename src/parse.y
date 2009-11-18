@@ -8,6 +8,7 @@ import(
 
 var line string;
 var linep int;
+var lookahead int;
 var numErrors int;
 %}
 
@@ -16,12 +17,20 @@ var numErrors int;
 	ident string;
 }
 
-%type <expr> expr
-%type <ident> 'x'
+%type <expr> expr variable abstraction
+
+%token <ident> IDENT
+%token FN
 
 %%
 
-expr: 'x' { $$ = Variable{$1}; }
+expr: variable
+    | abstraction
+    ;
+
+abstraction: FN IDENT '.' expr { $$ = Abstraction{$2,$4}; }
+
+variable: IDENT { $$ = Variable{$1}; }
 
 %%
 
@@ -40,13 +49,35 @@ func getrune() (result int) {
 }
 
 func Lex() int {
-	c := getrune();
-	yylval.ident = string(c);
+	c := lookahead;
+	lookahead = getrune();
+	switch true {
+	case c == ' ' || c == '\t':
+		return Lex();
+	case c == 'f' && lookahead == 'n':
+		lookahead = getrune();
+		return FN;
+	case isIdent(c):
+		str := string(c);
+		for isIdent(lookahead) {
+			str += string(lookahead);
+			lookahead = getrune();
+		}
+		yylval.ident = str;
+		return IDENT;
+	}
 	return c;
 }
 
-func
-Error(s string, v ...)
+func isIdent(c int) bool {
+	return
+		('a' <= c && c <= 'z') ||
+		('A' <= c && c <= 'Z') ||
+		('0' <= c && c <= '9') ||
+		c == '_';
+}
+
+func Error(s string, v ...)
 {
 	numErrors += 1;
 	fmt.Printf(s, v);
@@ -56,9 +87,10 @@ Error(s string, v ...)
 func ParseString(input string) (e Expression, ok bool) {
 	line = input;
 	linep = 0;
-    if Parse() == 0 {
+	lookahead = getrune();
+	if Parse() == 0 {
 		e = YYVAL.expr;
 		ok = true;
-	}
+    }
 	return;
 }
