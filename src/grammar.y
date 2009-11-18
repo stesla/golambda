@@ -24,7 +24,7 @@ import(
 expr: IDENT { $$ = Variable{$1}; }
     | FN idents '.' expr { $$ = makeAbstraction($2, $4); }
     | expr expr { $$ = Application{$1,$2}; }
-    | '(' expr ')' { $$ = $2; }
+    | '(' expr ')' { $$ = Group{$2}; }
     ;
 
 idents: idents IDENT { $$ = makeIdents($1, $2); }
