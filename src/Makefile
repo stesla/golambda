@@ -7,9 +7,11 @@ YACC=goyacc
 TARG=golambda
 GOFILES=\
 	expr.go\
-	parse.go
+	grammar.go\
+	parse.go\
+	lex.go
 
 include $(GOROOT)/src/Make.pkg
 
-parse.go: parse.y
+grammar.go: grammar.y
 	$(YACC) -o $@ $<
