@@ -15,6 +15,12 @@ func test(t *testing.T, tests []testCase) {
 	}
 }
 
+func expectBoolean(t *testing.T, expected, actual bool, message string) {
+	if expected != actual {
+		t.Errorf("%v: expected %v to be %v", message, actual, expected);
+	}
+}
+
 func expectString(t *testing.T, expected, actual, message string) {
 	if expected != actual {
 		t.Errorf("%v: expected `%v` to be `%v`", message, actual, expected);
