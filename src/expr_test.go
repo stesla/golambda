@@ -1,8 +1,19 @@
 package golambda
 
 import (
+	"fmt";
 	"testing";
 )
+
+type fmtTest struct {
+	message string;
+	expected string;
+	actual fmt.Stringer;
+}
+
+func (test fmtTest) run(t *testing.T) {
+	expectString(t, test.expected, test.actual.String(), test.message);
+}
 
 func TestString(t *testing.T) {
 	test(t, []testCase{

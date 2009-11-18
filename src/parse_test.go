@@ -4,6 +4,21 @@ import (
 	"testing";
 )
 
+type parseTest struct {
+	message string;
+	input string;
+	output string;
+}
+
+func (test parseTest) run(t *testing.T) {
+	ast, ok := ParseString(test.input);
+	if ok {
+		expectString(t, test.output, ast.String(), test.message);
+	} else {
+		t.Errorf("%v: `%v` does not parse", test.message, test.input);
+	}
+}
+
 func TestParse(t *testing.T) {
 	test(t, []testCase{
 		parseTest{"ident - single chart", "x", "x"},
