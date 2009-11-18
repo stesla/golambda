@@ -38,7 +38,7 @@ type parseTest struct {
 }
 
 func (test parseTest) run(t *testing.T) {
-	ast, ok := Parse(test.input);
+	ast, ok := ParseString(test.input);
 	if ok {
 		expectMatchString(t, test.output, ast.String(), test.message);
 	} else {
