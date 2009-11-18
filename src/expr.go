@@ -4,9 +4,12 @@ import (
 	"fmt";
 )
 
+var unique_id int;
+
 type Expression interface {
 	fmt.Stringer;
 	OccursFree(ident string) bool;
+	Substitute(ident string, subst Expression) Expression;
 }
 
 type Abstraction struct {
@@ -25,6 +28,20 @@ func (a Abstraction) OccursFree(ident string) bool {
 	return a.body.OccursFree(ident);
 }
 
+func (a Abstraction) Substitute(ident string, subst Expression) (result Expression) {
+	if a.variable == ident {
+		result = a;
+	} else if subst.OccursFree(a.variable) {
+		newVar := fmt.Sprintf("%v%v", a.variable, unique_id);
+		unique_id++;
+		body := a.body.Substitute(newVar, Variable{ident});
+		result = Abstraction{newVar, body.Substitute(ident, subst)};
+	} else {
+		result = Abstraction{a.variable, a.body.Substitute(ident, subst)};
+	}
+	return;
+}
+
 type Application struct {
 	function Expression;
 	argument Expression;
@@ -36,6 +53,10 @@ func (a Application) String() string {
 
 func (a Application) OccursFree(ident string) bool {
 	return a.function.OccursFree(ident) || a.argument.OccursFree(ident); 
+}
+
+func (a Application) Substitute(ident string, subst Expression) Expression {
+	return Application{a.function.Substitute(ident, subst), a.argument.Substitute(ident, subst)};
 }
 
 type Group struct {
@@ -50,6 +71,10 @@ func (g Group) OccursFree(ident string) bool {
 	return g.inner.OccursFree(ident);
 }
 
+func (g Group) Substitute(ident string, subst Expression) Expression {
+	return Group{g.inner.Substitute(ident, subst)};
+}
+
 type Variable struct {
 	name string;
 }
@@ -60,4 +85,11 @@ func (v Variable) String() string {
 
 func (v Variable) OccursFree(ident string) bool {
 	return v.name == ident;
+}
+
+func (v Variable) Substitute(ident string, subst Expression) Expression {
+	if v.name == ident {
+		return subst;
+	}
+	return v;
 }

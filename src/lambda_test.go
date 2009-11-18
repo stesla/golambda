@@ -30,3 +30,36 @@ func TestOccursFree(t *testing.T) {
 		occursFree{"bound application to free var", true, "x", "((fn x. x) x)"}
 	});
 }
+
+type substTest struct {
+	message string;
+	expected string;
+	input string;
+	ident string;
+	subst string;
+}
+
+func (test substTest) run(t *testing.T) {
+	if ast_input, ok := ParseString(test.input); ok {
+		if ast_subst, ok := ParseString(test.subst); ok {
+			actual := ast_input.Substitute(test.ident, ast_subst);
+			expectString(t, test.expected, actual.String(), test.message);
+		} else {
+			t.Errorf("%v: `%v` does not parse", test.message, test.subst);
+		} else {
+		t.Errorf("%v: `%v` does not parse", test.message, test.input);
+	}
+}
+
+func TestSubstitute(t *testing.T) {
+	test(t, []testCase{
+		substTest{"matching variable", "y", "x", "x", "y"},
+		substTest{"substitute an abstraction", "fn x. x", "x", "x", "fn x. x"},
+		substTest{"non-matching variable", "x", "x", "y", "z"},
+		substTest{"application", "y z", "x z", "x", "y"},
+		substTest{"bound var", "fn x. x", "fn x. x", "x", "y"},
+		substTest{"bound var not free in substitution", "fn x. z", "fn x. y", "y", "z"},
+		substTest{"bound var free in substitution", "fn x0. x", "fn x. y", "y", "x"},
+		substTest{"group", "(y)", "(x)", "x", "y"}
+	});
+}
