@@ -29,12 +29,12 @@ aexpr: IDENT { $$ = Variable{$1}; }
 | '(' expr ')' { $$ = Group{$2}; }
 ;
 
-aexprs: aexpr { $$ = makeAexprs($1, list.New()); }
-| aexpr aexprs { $$ = makeAexprs($1, $2); }
+aexprs: aexpr { $$ = push($1, list.New()); }
+| aexpr aexprs { $$ = push($1, $2); }
 ;
 
-idents: idents IDENT { $$ = makeIdents($1, $2); }
-      | IDENT { $$ = makeIdents(list.New(), $1); }
+idents: idents IDENT { $$ = push($2, $1); }
+      | IDENT { $$ = push($1, list.New()); }
       ;
 
 %%

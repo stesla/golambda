@@ -5,8 +5,6 @@ import(
 	"container/list";
 )
 
-var numErrors int;
-
 func listPopFront(list *list.List) interface{} {
 	elt := list.Front();
 	list.Remove(elt);
@@ -21,9 +19,9 @@ func makeAbstraction(idents *list.List, body Expression) Expression {
 	return body;
 }
 
-func makeAexprs(expr Expression, exprs *list.List) *list.List {
-	exprs.PushFront(expr);
-	return exprs;
+func push(item interface{}, l *list.List) *list.List {
+	l.PushFront(item);
+	return l;
 }
 
 func makeApplication(exprs *list.List) (result Expression) {
@@ -39,13 +37,7 @@ func makeApplication(exprs *list.List) (result Expression) {
 	return;
 }
 
-func makeIdents(idents *list.List, ident string) *list.List {
-	idents.PushFront(ident);
-	return idents;
-}
-
 func Error(s string, v ...) {
-	numErrors += 1;
 	fmt.Printf(s, v);
 	fmt.Printf("\n");
 }

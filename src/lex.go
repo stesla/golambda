@@ -1,8 +1,6 @@
 package golambda
 
-import(
-	"utf8";
-)
+import "utf8";
 
 var line string;
 var linep int;
@@ -10,7 +8,6 @@ var lookahead int;
 
 func getrune() (result int) {
 	var n int;
-
 	if linep >= len(line) {
 		return 0;
 	}
@@ -19,7 +16,7 @@ func getrune() (result int) {
 	if result == '\n' {
 		result = 0;
 	}
-	return result;
+	return;
 }
 
 func Lex() int {
@@ -44,9 +41,8 @@ func Lex() int {
 }
 
 func isIdent(c int) bool {
-	return
+	return c == '_' ||
 		('a' <= c && c <= 'z') ||
 		('A' <= c && c <= 'Z') ||
-		('0' <= c && c <= '9') ||
-		c == '_';
+		('0' <= c && c <= '9');
 }
