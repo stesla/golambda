@@ -3,3 +3,4 @@ _test
 grammar.go
 *.6
 golambda
+test_golambda
