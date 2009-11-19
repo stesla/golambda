@@ -1,14 +1,9 @@
-# Copyright 2009 The Go Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
 PROGRAM=golambda
+TESTPROG=test_$(PROGRAM)
 
+# Define all the commands we're going to use based on the arch.
 include $(GOROOT)/src/Make.$(GOARCH)
-
 YACC=goyacc
-
-TARG=golambda
 
 GOLAMBDA_FILES=\
 	expr.go\
@@ -16,26 +11,35 @@ GOLAMBDA_FILES=\
 	parse.go\
 	lex.go
 
-MAIN_FILES=\
-	main.go
-
-OFILES=\
-	golambda.$O\
-	main.$O
+TEST_FILES=$(wildcard *_test.go)
 
 all: $(PROGRAM)
 
+test: $(TESTPROG)
+	./$(TESTPROG)
+
 clean:
-	rm -rf *.$O $(PROGRAM) grammar.go
+	rm -rf *.$O $(PROGRAM) $(TESTPROG) grammar.go
 
 golambda.$O: $(GOLAMBDA_FILES)
-	$(GC) -o $@ $(GOLAMBDA_FILES)
+	$(GC) -o $@ $^
 
-main.$O: golambda.$O $(MAIN_FILES)
-	$(GC) -o $@ $(MAIN_FILES)
+main.$O: golambda.$O
+test_main.$O: test_golambda.$O
 
-$(PROGRAM): $(OFILES)
-	$(LD) -o $@ $(OFILES)
+$(PROGRAM): main.$O
+	$(LD) -o $@ $^
+
+test_golambda.$O: $(GOLAMBDA_FILES) $(TEST_FILES)
+	$(GC) -o $@ $^
+
+$(TESTPROG): test_main.$O
+	$(LD) -o $@ $^
 
 grammar.go: grammar.y
 	$(YACC) -o $@ $<
+
+.SUFFIXES: .$O .go
+
+.go.$O:
+	$(GC) -o $@ $<
