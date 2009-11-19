@@ -6,10 +6,14 @@ include $(GOROOT)/src/Make.$(GOARCH)
 YACC=goyacc
 
 GOLAMBDA_FILES=\
+	abstraction.go\
+	application.go\
 	expr.go\
 	grammar.go\
+	group.go\
+	lex.go\
 	parse.go\
-	lex.go
+	variable.go
 
 TEST_FILES=$(wildcard *_test.go)
 
